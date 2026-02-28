@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天赋自测 - 探索你的隐藏天赋</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #7C5CBF;
+            --primary-light: #9B7FD4;
+            --primary-dark: #5E3FA3;
+            --primary-glow: rgba(124, 92, 191, 0.3);
+            --accent: #E8B4F8;
+            --accent-warm: #F2A6B6;
+            --bg-deep: #1A1035;
+            --bg-card: rgba(255, 255, 255, 0.06);
+            --bg-card-hover: rgba(255, 255, 255, 0.1);
+            --bg-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #F0EAF7;
+            --text-secondary: rgba(240, 234, 247, 0.6);
+            --text-dim: rgba(240, 234, 247, 0.35);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(124, 92, 191, 0.5);
+            --success: #6DD5A1;
+            --warning: #F5C76E;
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 40px rgba(124, 92, 191, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 0; overflow: hidden;
+        }
+        .bg-orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); opacity: 0.4;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+        .bg-orb:nth-child(1) { width: 400px; height: 400px; background: radial-gradient(circle, #7C5CBF, transparent); top: -10%; left: -5%; }
+        .bg-orb:nth-child(2) { width: 350px; height: 350px; background: radial-gradient(circle, #E8B4F8, transparent); bottom: -10%; right: -5%; animation-delay: -7s; }
+        .bg-orb:nth-child(3) { width: 250px; height: 250px; background: radial-gradient(circle, #6DD5A1, transparent); top: 50%; left: 50%; opacity: 0.2; animation-delay: -14s; }
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .star {
+            position: absolute; width: 2px; height: 2px;
+            background: #fff; border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.8; } }
+
+        .app-container {
+            position: relative; z-index: 1;
+            max-width: 600px; margin: 0 auto;
+            padding: 20px 16px 40px; min-height: 100vh;
+        }
+
+        /* ===== Welcome ===== */
+        .welcome-screen {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 90vh; text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-icon { width: 100px; height: 100px; margin-bottom: 32px; position: relative; }
+        .welcome-icon svg { width: 100%; height: 100%; }
+        .welcome-icon::after {
+            content: ''; position: absolute; inset: -20px; border-radius: 50%;
+            background: var(--primary-glow); filter: blur(30px); z-index: -1;
+        }
+        .welcome-title {
+            font-size: 36px; font-weight: 700; margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .welcome-subtitle {
+            font-size: 16px; color: var(--text-secondary);
+            margin-bottom: 40px; max-width: 400px; line-height: 1.7;
+        }
+        .welcome-meta { display: flex; gap: 24px; margin-bottom: 40px; }
+        .meta-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .meta-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--bg-glass); border: 1px solid var(--border-subtle);
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .meta-label { font-size: 12px; color: var(--text-dim); }
+        .meta-value { font-size: 14px; font-weight: 600; }
+
+        /* XHS Card */
+        .xhs-card {
+            margin-top: 24px; padding: 18px; border-radius: 18px; width: 100%; max-width: 400px;
+            border: 1px solid rgba(124, 92, 191, 0.25);
+            background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            margin-bottom: 32px;
+        }
+        .xhs-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .xhs-title { font-weight: 800; font-size: 14px; color: var(--accent); letter-spacing: 0.4px; }
+        .xhs-hint {
+            font-size: 12px; color: var(--text-secondary);
+            background: rgba(124, 92, 191, 0.15); border: 1px solid rgba(124, 92, 191, 0.3);
+            padding: 4px 10px; border-radius: 999px;
+        }
+        .xhs-name { font-weight: 800; font-size: 14px; color: var(--text-primary); margin-bottom: 6px; }
+        .xhs-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin: 0 0 12px; }
+        .xhs-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 12px; border-radius: 14px; text-decoration: none;
+            color: #fff; background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border: 1px solid rgba(124, 92, 191, 0.35); box-shadow: 0 8px 18px var(--primary-glow);
+            font-weight: 800; font-size: 14px; transition: all 0.2s;
+        }
+        .xhs-btn:active { transform: scale(0.985); }
+
+        /* Captcha */
+        .captcha-box {
+            width: 100%; max-width: 400px; margin-top: 20px;
+        }
+        .captcha-label {
+            font-size: 13px; color: var(--text-secondary); margin: 0 0 8px;
+        }
+        .captcha-row {
+            display: flex; gap: 10px; align-items: center;
+        }
+        .captcha-input {
+            flex: 1; padding: 12px 14px; border-radius: 14px;
+            border: 1px solid rgba(124, 92, 191, 0.35);
+            background: var(--bg-glass); color: var(--text-primary);
+            font-size: 15px; outline: none; font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .captcha-input::placeholder { color: var(--text-dim); }
+        .captcha-input:focus { border-color: var(--primary); }
+        .btn-verify {
+            padding: 12px 18px; border-radius: 14px; border: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+            white-space: nowrap; font-family: inherit;
+            box-shadow: 0 4px 14px var(--primary-glow); transition: all 0.2s;
+        }
+        .btn-verify:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--primary-glow); }
+        .btn-verify:active { transform: translateY(0); }
+        .captcha-msg {
+            margin-top: 8px; font-size: 12px; text-align: left;
+            min-height: 18px;
+        }
+        .btn-start.disabled {
+            opacity: 0.45; cursor: not-allowed;
+            filter: saturate(0.7);
+            box-shadow: none;
+        }
+        .btn-start.disabled:hover {
+            transform: none; box-shadow: none;
+        }
+
+        .btn-start {
+            padding: 16px 64px; font-size: 18px; font-weight: 600; color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none; border-radius: 50px; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 20px var(--primary-glow);
+            position: relative; overflow: hidden;
+        }
+        .btn-start::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .btn-start:hover::before { opacity: 1; }
+        .btn-start:active { transform: translateY(0); }
+
+        /* ===== Quiz ===== */
+        .quiz-screen { animation: fadeInUp 0.5s ease-out; }
+        .quiz-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; padding: 16px 0;
+        }
+        .btn-back {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--bg-glass); border: 1px solid var(--border-subtle);
+            color: var(--text-primary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; font-size: 18px;
+        }
+        .btn-back:hover { background: var(--bg-card-hover); }
+        .progress-info { text-align: center; }
+        .progress-fraction { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .progress-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+        .quiz-header-spacer { width: 40px; }
+
+        .progress-bar-wrap {
+            width: 100%; height: 6px; background: var(--bg-glass);
+            border-radius: 3px; margin-bottom: 32px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px; transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .question-card {
+            background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle); border-radius: 24px;
+            padding: 32px 24px; box-shadow: var(--shadow-card);
+        }
+        .question-category {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 20px;
+            background: rgba(124, 92, 191, 0.15); color: var(--accent);
+            font-size: 12px; font-weight: 500; margin-bottom: 16px;
+        }
+        .question-text {
+            font-size: 20px; font-weight: 600; line-height: 1.6;
+            margin-bottom: 28px; color: var(--text-primary);
+        }
+
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            display: flex; align-items: center; gap: 14px; width: 100%;
+            padding: 16px 18px; background: var(--bg-glass);
+            border: 1px solid var(--border-subtle); border-radius: 14px;
+            color: var(--text-primary); font-size: 15px; cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: left; font-family: inherit;
+        }
+        .option-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-active);
+        }
+        .option-btn.selected {
+            background: rgba(124, 92, 191, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary), var(--shadow-glow);
+        }
+        .option-score {
+            width: 32px; height: 32px; border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; color: var(--text-secondary);
+            flex-shrink: 0; transition: background 0.2s, color 0.2s;
+        }
+        .option-btn.selected .option-score { background: var(--primary); color: #fff; }
+        .option-label { flex: 1; }
+
+        .quiz-nav { display: flex; gap: 12px; margin-top: 28px; }
+        .btn-nav {
+            flex: 1; padding: 14px; border-radius: 14px; font-size: 15px;
+            font-weight: 600; cursor: pointer; transition: all 0.25s ease;
+            font-family: inherit; border: none;
+        }
+        .btn-prev {
+            background: var(--bg-glass); border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+        }
+        .btn-prev:hover { background: var(--bg-card-hover); }
+        .btn-next {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff; box-shadow: 0 4px 16px var(--primary-glow);
+        }
+        .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 24px var(--primary-glow); }
+        .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* ===== Result ===== */
+        .result-screen { animation: fadeInUp 0.8s ease-out; padding-bottom: 40px; }
+        .result-header { text-align: center; margin-bottom: 32px; }
+        .result-badge {
+            width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; box-shadow: 0 0 40px var(--primary-glow);
+        }
+        .result-title {
+            font-size: 28px; font-weight: 700; margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .result-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+        .summary-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+        .summary-card {
+            background: var(--bg-card); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle); border-radius: 16px; padding: 18px;
+        }
+        .summary-card-label { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+        .summary-card-value { font-size: 14px; font-weight: 600; line-height: 1.5; }
+        .summary-card-value.strength { color: var(--success); }
+        .summary-card-value.weakness { color: var(--accent-warm); }
+
+        .chart-section {
+            background: var(--bg-card); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle); border-radius: 20px;
+            padding: 24px 16px; margin-bottom: 24px; box-shadow: var(--shadow-card);
+        }
+        .section-title {
+            font-size: 18px; font-weight: 600; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-title-icon { font-size: 20px; }
+        #radarChart { width: 100%; height: 320px; }
+
+        .score-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+        .score-item {
+            background: var(--bg-card); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle); border-radius: 14px;
+            padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+            transition: background 0.2s;
+        }
+        .score-item:hover { background: var(--bg-card-hover); }
+        .score-rank {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; flex-shrink: 0;
+        }
+        .score-rank.top { background: rgba(109, 213, 161, 0.2); color: var(--success); }
+        .score-rank.mid { background: rgba(124, 92, 191, 0.2); color: var(--primary-light); }
+        .score-rank.low { background: rgba(242, 166, 182, 0.2); color: var(--accent-warm); }
+        .score-name { flex: 1; font-size: 14px; font-weight: 500; }
+        .score-bar-wrap {
+            flex: 2; height: 8px; background: rgba(255,255,255,0.06);
+            border-radius: 4px; overflow: hidden;
+        }
+        .score-bar-fill {
+            height: 100%; border-radius: 4px;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .score-bar-fill.top { background: linear-gradient(90deg, var(--success), #A3E9C1); }
+        .score-bar-fill.mid { background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .score-bar-fill.low { background: linear-gradient(90deg, var(--accent-warm), #F5C7D2); }
+        .score-value {
+            font-size: 14px; font-weight: 700; min-width: 32px;
+            text-align: right; color: var(--text-secondary);
+        }
+        .score-level {
+            font-size: 12px; padding: 2px 8px; border-radius: 6px;
+            font-weight: 500; min-width: 72px; text-align: center;
+        }
+        .level-very-good { background: rgba(109,213,161,0.15); color: var(--success); }
+        .level-good { background: rgba(124,92,191,0.15); color: var(--primary-light); }
+        .level-fair { background: rgba(245,199,110,0.15); color: var(--warning); }
+        .level-poor { background: rgba(242,166,182,0.15); color: var(--accent-warm); }
+
+        .btn-retest {
+            display: block; width: 100%; padding: 16px; font-size: 16px;
+            font-weight: 600; color: var(--text-primary);
+            background: var(--bg-glass); border: 1px solid var(--border-subtle);
+            border-radius: 16px; cursor: pointer; transition: all 0.25s; font-family: inherit;
+        }
+        .btn-retest:hover { background: var(--bg-card-hover); border-color: var(--border-active); }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 480px) {
+            .app-container { padding: 12px 12px 32px; }
+            .welcome-title { font-size: 28px; }
+            .question-text { font-size: 18px; }
+            .question-card { padding: 24px 18px; }
+            .summary-cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-canvas">
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+    </div>
+    <div class="stars" id="stars"></div>
+
+    <div class="app-container">
+        <!-- ===== Welcome ===== -->
+        <div id="welcomeScreen" class="welcome-screen">
+            <div class="welcome-icon">
+                <svg viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="45" stroke="url(#g1)" stroke-width="2" opacity="0.3"/>
+                    <circle cx="50" cy="50" r="30" stroke="url(#g1)" stroke-width="2" opacity="0.5"/>
+                    <circle cx="50" cy="50" r="15" fill="url(#g1)" opacity="0.8"/>
+                    <path d="M50 10 L53 45 L50 50 L47 45Z" fill="url(#g1)" opacity="0.6"/>
+                    <path d="M50 90 L53 55 L50 50 L47 55Z" fill="url(#g1)" opacity="0.6"/>
+                    <path d="M10 50 L45 47 L50 50 L45 53Z" fill="url(#g1)" opacity="0.6"/>
+                    <path d="M90 50 L55 47 L50 50 L55 53Z" fill="url(#g1)" opacity="0.6"/>
+                    <defs>
+                        <linearGradient id="g1" x1="0" y1="0" x2="100" y2="100">
+                            <stop offset="0%" stop-color="#E8B4F8"/>
+                            <stop offset="100%" stop-color="#7C5CBF"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1 class="welcome-title">天赋自测</h1>
+            <p class="welcome-subtitle">
+                每个人都拥有独特的天赋组合。<br/>通过 40 道精选题目，科学探测你的十大核心天赋维度。
+            </p>
+            <div class="welcome-meta">
+                <div class="meta-item">
+                    <div class="meta-icon">📝</div>
+                    <span class="meta-value">40 题</span>
+                    <span class="meta-label">测试题目</span>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-icon">⏱️</div>
+                    <span class="meta-value">5-8 分钟</span>
+                    <span class="meta-label">预计用时</span>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-icon">🧠</div>
+                    <span class="meta-value">10 维度</span>
+                    <span class="meta-label">天赋评估</span>
+                </div>
+            </div>
+
+            <!-- 小红书卡片 -->
+            <div class="xhs-card">
+                <div class="xhs-head">
+                    <div class="xhs-title">📕 小红书</div>
+                    <div class="xhs-hint">关注获取更多</div>
+                </div>
+                <div class="xhs-name">小红书号：26431053876</div>
+                <p class="xhs-desc">更多职场关系测试与低内耗成长。想看更多"职场关系结构"测评与解读，点击直达小红书主页。</p>
+                <a class="xhs-btn" href="https://xhslink.com/m4CIrTGgWEkg" target="_blank" rel="noopener">📲 点击直达小红书主页</a>
+            </div>
+
+            <!-- 验证码 -->
+            <div class="captcha-box">
+                <div class="captcha-label">🔐 请输入验证码开始测试</div>
+                <div class="captcha-row">
+                    <input type="text" id="captchaInput" class="captcha-input" inputmode="numeric" placeholder="请输入验证码">
+                    <button class="btn-verify" id="verifyBtn">验证</button>
+                </div>
+                <div class="captcha-msg" id="captchaMsg"></div>
+            </div>
+
+            <button class="btn-start disabled" id="startBtn" onclick="startQuiz()" disabled>开始探索天赋</button>
+        </div>
+
+        <!-- ===== Quiz ===== -->
+        <div id="quizScreen" class="quiz-screen hidden">
+            <div class="quiz-header">
+                <button class="btn-back" onclick="prevQuestion()" id="btnPrev" title="上一题">←</button>
+                <div class="progress-info">
+                    <div class="progress-fraction" id="progressFraction">1 / 40</div>
+                    <div class="progress-label">答题进度</div>
+                </div>
+                <div class="quiz-header-spacer"></div>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progressBar" style="width: 2.5%"></div>
+            </div>
+            <div class="question-card" id="questionCard">
+                <div class="question-category" id="questionCategory">
+                    <span>🎯</span> <span id="categoryLabel"></span>
+                </div>
+                <p class="question-text" id="questionText"></p>
+                <div class="options-list" id="optionsList"></div>
+            </div>
+            <div class="quiz-nav">
+                <button class="btn-nav btn-prev" onclick="prevQuestion()" id="btnPrevBottom">上一题</button>
+                <button class="btn-nav btn-next" onclick="nextQuestion()" id="btnNext" disabled>下一题</button>
+            </div>
+        </div>
+
+        <!-- ===== Result ===== -->
+        <div id="resultScreen" class="result-screen hidden">
+            <div class="result-header">
+                <div class="result-badge">🌟</div>
+                <h2 class="result-title">恭喜完成测试</h2>
+                <p class="result-desc" id="resultDesc"></p>
+            </div>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-card-label">✨ 最强天赋</div>
+                    <div class="summary-card-value strength" id="topStrengths"></div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">🌱 成长空间</div>
+                    <div class="summary-card-value weakness" id="topWeaknesses"></div>
+                </div>
+            </div>
+            <div class="chart-section">
+                <div class="section-title"><span class="section-title-icon">📊</span> 天赋能力图</div>
+                <div id="radarChart"></div>
+            </div>
+            <div class="section-title" style="margin-bottom: 14px;"><span class="section-title-icon">📋</span> 各项天赋分值</div>
+            <div class="score-list" id="scoreList"></div>
+
+            <!-- 结果页小红书卡片 -->
+            <div class="xhs-card" style="max-width:100%; margin-bottom:16px;">
+                <div class="xhs-head">
+                    <div class="xhs-title">📕 小红书</div>
+                    <div class="xhs-hint">关注获取更多</div>
+                </div>
+                <div class="xhs-name">小红书号：26431053876</div>
+                <p class="xhs-desc">更多职场关系测试与低内耗成长。想看更多"职场关系结构"测评与解读，点击直达小红书主页。</p>
+                <a class="xhs-btn" href="https://xhslink.com/m4CIrTGgWEkg" target="_blank" rel="noopener">📲 点击直达小红书主页</a>
+            </div>
+
+            <button class="btn-retest" onclick="retest()">🔄 重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // Stars
+        (function() {
+            const c = document.getElementById('stars');
+            for (let i = 0; i < 60; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.animationDelay = Math.random() * 3 + 's';
+                s.style.width = s.style.height = (Math.random() * 2 + 1) + 'px';
+                c.appendChild(s);
+            }
+        })();
+
+        const questions = [
+            { question: "我擅长用艺术性的方式做事？", category: "J" },
+            { question: "我擅长给别人传授知识", category: "E" },
+            { question: "我擅长需要手眼协调的任务", category: "F" },
+            { question: "我擅长流畅准确地完成一系列动作", category: "F" },
+            { question: "我擅长跟随音乐的节拍", category: "G" },
+            { question: "我擅长判断动物的需求", category: "H" },
+            { question: "我擅长刻画塑造事物", category: "J" },
+            { question: "我擅长需要手指灵巧的任务", category: "F" },
+            { question: "我擅长清楚明白地阐述事情", category: "A" },
+            { question: "我擅长让配色协调", category: "J" },
+            { question: "我擅长理解公式", category: "B" },
+            { question: "我擅长与身体相关的任务", category: "F" },
+            { question: "我擅长产出丰富的想法", category: "I" },
+            { question: "我擅长空间想象和思考", category: "C" },
+            { question: "我擅长找到不同寻常的问题解决办法", category: "I" },
+            { question: "我擅长有逻辑地思考问题", category: "B" },
+            { question: "我擅长理解数学问题", category: "B" },
+            { question: "我擅长用我的语言说服对方", category: "A" },
+            { question: "我擅长识别和理解我的情绪", category: "D" },
+            { question: "我擅长用数学方式进行论述", category: "B" },
+            { question: "我擅长从不同视角想象物体", category: "C" },
+            { question: "我擅长用语言来表达想法", category: "A" },
+            { question: "我擅长认识到我的愿望和需求，并与人交流", category: "D" },
+            { question: "我擅长替别人着想", category: "E" },
+            { question: "我擅长拥有破框思维", category: "I" },
+            { question: "我擅长空间定位", category: "C" },
+            { question: "我擅长遇到压力时让自己平静", category: "D" },
+            { question: "我擅长根据说明将事物在脑海中呈现出来", category: "C" },
+            { question: "我擅长与别人打交道", category: "E" },
+            { question: "我擅长与不熟悉的动物共处", category: "H" },
+            { question: "我擅长听到旋律中细微的不和谐之处", category: "G" },
+            { question: "我擅长照料不同种类的植物", category: "H" },
+            { question: "我擅长唱歌", category: "G" },
+            { question: "我擅长在时间紧迫的情况下处理问题", category: "D" },
+            { question: "我擅长识别不同草药并在工作中使用它们", category: "H" },
+            { question: "我擅长原创性思考", category: "I" },
+            { question: "我擅长装饰空间", category: "J" },
+            { question: "我擅长迅速理解对方想要给我传达什么信息", category: "A" },
+            { question: "我擅长学习不同种类的乐器", category: "G" },
+            { question: "我擅长在人与人之间斡旋", category: "E" }
+        ];
+
+        const talents = {
+            A: "语言天赋", B: "逻辑-算数天赋", C: "空间天赋",
+            D: "内省天赋", E: "人际天赋", F: "身体-动觉天赋",
+            G: "音乐天赋", H: "自然天赋", I: "创造天赋", J: "美学天赋"
+        };
+
+        const categoryIcons = {
+            A: "💬", B: "🧮", C: "🧊", D: "🧘", E: "🤝",
+            F: "🏃", G: "🎵", H: "🌿", I: "💡", J: "🎨"
+        };
+
+        const optionLabels = [
+            { value: "5", label: "非常符合" },
+            { value: "4", label: "很符合" },
+            { value: "3", label: "部分符合" },
+            { value: "2", label: "不太符合" },
+            { value: "1", label: "完全不符合" }
+        ];
+
+        let currentIndex = 0;
+        let answers = {};
+        let isTransitioning = false;
+
+        const CAPTCHA_CODE = '1002';
+        let captchaVerified = false;
+
+        const startBtnEl = document.getElementById('startBtn');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const captchaInput = document.getElementById('captchaInput');
+        const captchaMsg = document.getElementById('captchaMsg');
+
+        function setStartEnabled(enabled) {
+            startBtnEl.disabled = !enabled;
+            if (enabled) {
+                startBtnEl.classList.remove('disabled');
+            } else {
+                startBtnEl.classList.add('disabled');
+            }
+        }
+
+        verifyBtn.onclick = function() {
+            const v = captchaInput.value.trim();
+            if (!v) {
+                captchaMsg.textContent = '❗ 请输入验证码';
+                captchaMsg.style.color = 'var(--accent-warm)';
+                return;
+            }
+            if (v === CAPTCHA_CODE) {
+                captchaVerified = true;
+                captchaMsg.textContent = '✅ 验证成功，可以开始测试了！';
+                captchaMsg.style.color = 'var(--success)';
+                setStartEnabled(true);
+            } else {
+                captchaVerified = false;
+                captchaMsg.textContent = '❌ 验证码错误，请重新输入';
+                captchaMsg.style.color = 'var(--accent-warm)';
+                setStartEnabled(false);
+            }
+        };
+
+        captchaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') verifyBtn.click();
+        });
+
+        function startQuiz() {
+            if (!captchaVerified) { return; }
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            document.getElementById('progressFraction').textContent = `${currentIndex + 1} / ${questions.length}`;
+            document.getElementById('progressBar').style.width = ((currentIndex + 1) / questions.length * 100) + '%';
+            document.getElementById('questionText').textContent = q.question;
+            document.getElementById('categoryLabel').textContent = talents[q.category];
+            document.getElementById('questionCategory').querySelector('span').textContent = categoryIcons[q.category];
+
+            const list = document.getElementById('optionsList');
+            list.innerHTML = '';
+            optionLabels.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn' + (answers[currentIndex] === opt.value ? ' selected' : '');
+                btn.innerHTML = `<span class="option-score">${opt.value}</span><span class="option-label">${opt.label}</span>`;
+                btn.onclick = () => selectOption(opt.value);
+                list.appendChild(btn);
+            });
+
+            document.getElementById('btnNext').disabled = !answers[currentIndex];
+            document.getElementById('btnNext').textContent = currentIndex === questions.length - 1 ? '查看结果' : '下一题';
+            document.getElementById('btnPrev').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+            document.getElementById('btnPrevBottom').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+
+            isTransitioning = false;
+        }
+
+        function selectOption(value) {
+            if (isTransitioning) return;
+            answers[currentIndex] = value;
+
+            // Update UI immediately without re-rendering
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
+                const scoreEl = btn.querySelector('.option-score');
+                if (scoreEl.textContent === value) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            document.getElementById('btnNext').disabled = false;
+            document.getElementById('btnNext').textContent = currentIndex === questions.length - 1 ? '查看结果' : '下一题';
+
+            // Auto advance
+            if (currentIndex < questions.length - 1) {
+                isTransitioning = true;
+                setTimeout(() => {
+                    currentIndex++;
+                    renderQuestion();
+                }, 500);
+            }
+        }
+
+        function nextQuestion() {
+            if (!answers[currentIndex]) return;
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function showResults() {
+            const scores = {};
+            Object.keys(talents).forEach(k => scores[k] = 0);
+            Object.entries(answers).forEach(([idx, val]) => {
+                const cat = questions[parseInt(idx)].category;
+                scores[cat] += parseInt(val);
+            });
+
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            const topNames = sorted.slice(0, 3).map(([k]) => talents[k]);
+            const bottomNames = sorted.slice(-3).map(([k]) => talents[k]);
+
+            document.getElementById('topStrengths').textContent = topNames.join('、');
+            document.getElementById('topWeaknesses').textContent = bottomNames.join('、');
+            document.getElementById('resultDesc').innerHTML =
+                `你最具有 <strong style="color:var(--success)">${topNames.join('、')}</strong>，而 <strong style="color:var(--accent-warm)">${bottomNames.join('、')}</strong> 相对较弱。`;
+
+            // Radar chart
+            const chartDom = document.getElementById('radarChart');
+            const chart = echarts.init(chartDom, null, { renderer: 'canvas' });
+            const indicators = sorted.map(([k, v]) => ({ name: talents[k].replace('天赋','') + '\n(' + v + '分)', max: 20 }));
+            const values = sorted.map(([, v]) => v);
+
+            chart.setOption({
+                radar: {
+                    indicator: indicators, shape: 'polygon',
+                    axisName: { color: 'rgba(240,234,247,0.7)', fontSize: 11, lineHeight: 16 },
+                    splitArea: { areaStyle: { color: ['rgba(124,92,191,0.02)', 'rgba(124,92,191,0.05)', 'rgba(124,92,191,0.08)', 'rgba(124,92,191,0.11)'] } },
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{
+                        value: values,
+                        areaStyle: {
+                            color: { type: 'radial', x: 0.5, y: 0.5, r: 0.5,
+                                colorStops: [
+                                    { offset: 0, color: 'rgba(124,92,191,0.6)' },
+                                    { offset: 1, color: 'rgba(232,180,248,0.1)' }
+                                ]
+                            }
+                        },
+                        lineStyle: { color: '#9B7FD4', width: 2 },
+                        itemStyle: { color: '#E8B4F8', borderColor: '#7C5CBF', borderWidth: 2 },
+                        symbol: 'circle', symbolSize: 6
+                    }]
+                }]
+            });
+            window.addEventListener('resize', () => chart.resize());
+
+            // Score list
+            const list = document.getElementById('scoreList');
+            list.innerHTML = '';
+            sorted.forEach(([k, v], i) => {
+                const pct = (v / 20 * 100).toFixed(0);
+                let tierClass, barClass, levelClass, levelText;
+                if (i < 3) { tierClass = 'top'; barClass = 'top'; }
+                else if (i < 7) { tierClass = 'mid'; barClass = 'mid'; }
+                else { tierClass = 'low'; barClass = 'low'; }
+
+                if (v >= 16) { levelClass = 'level-very-good'; levelText = '非常擅长'; }
+                else if (v >= 12) { levelClass = 'level-good'; levelText = '有些擅长'; }
+                else if (v >= 8) { levelClass = 'level-fair'; levelText = '不太擅长'; }
+                else { levelClass = 'level-poor'; levelText = '完全不擅长'; }
+
+                const item = document.createElement('div');
+                item.className = 'score-item';
+                item.innerHTML = `
+                    <span class="score-rank ${tierClass}">${i + 1}</span>
+                    <span class="score-name">${categoryIcons[k]} ${talents[k]}</span>
+                    <div class="score-bar-wrap">
+                        <div class="score-bar-fill ${barClass}" style="width: 0%"></div>
+                    </div>
+                    <span class="score-value">${v}</span>
+                    <span class="score-level ${levelClass}">${levelText}</span>
+                `;
+                list.appendChild(item);
+                setTimeout(() => {
+                    item.querySelector('.score-bar-fill').style.width = pct + '%';
+                }, 100 + i * 80);
+            });
+        }
+
+        function retest() {
+            currentIndex = 0;
+            answers = {};
+            isTransitioning = false;
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
