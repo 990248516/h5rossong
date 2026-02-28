@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>马年职场小人测试</title>
+  <style>
+    :root{
+      --bg:#3A0F12; --card:#FFF7EB; --ink:#3B1B12; --muted:#8B6A4F;
+      --primary:#B91C1C; --accent:#D4AF37;
+      --shadow:0 18px 40px rgba(0,0,0,.22);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(closest-side at 12% 18%, rgba(212,175,55,.10), transparent 62%),
+        radial-gradient(closest-side at 86% 26%, rgba(212,175,55,.08), transparent 60%),
+        radial-gradient(closest-side at 22% 78%, rgba(212,175,55,.07), transparent 64%),
+        radial-gradient(closest-side at 78% 84%, rgba(212,175,55,.06), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.05), transparent 30%, rgba(0,0,0,.08));
+      mix-blend-mode:screen;
+      opacity:.9;
+    }
+
+    .wrap{max-width:520px;margin:0 auto; padding:18px 14px 32px; position:relative;}
+    .card{
+      padding:20px;
+      border-radius:var(--radius);
+      border:1px solid rgba(212,175,55,.22);
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      background:
+        radial-gradient(closest-side at 18% 14%, rgba(212,175,55,.06), transparent 60%),
+        radial-gradient(closest-side at 84% 86%, rgba(185,28,28,.05), transparent 62%),
+        linear-gradient(180deg,#FFF9EF,#FFF3DF);
+      animation:fadeUp .25s ease-out;
+    }
+    .card:before{
+      content:"";
+      position:absolute; left:0; right:0; top:0; height:12px;
+      background:linear-gradient(90deg, rgba(212,175,55,.10), rgba(212,175,55,.45), rgba(212,175,55,.10));
+      opacity:.85;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .tiny{
+      font-size:12px;color:#5A2A16;
+      padding:6px 10px;border-radius:999px;
+      background:linear-gradient(180deg, rgba(246,231,182,.45), rgba(231,198,106,.25));
+      border:1px solid rgba(212,175,55,.55);
+      box-shadow:0 8px 16px rgba(0,0,0,.10);
+    }
+
+    .badge{
+      font-size:12px;
+      color:#7A1A14;
+      background:linear-gradient(180deg,#F6E7B6,#E7C66A);
+      border:1px solid #D4AF37;
+      padding:6px 10px;
+      border-radius:999px;
+      box-shadow:0 6px 14px rgba(0,0,0,.08);
+    }
+
+    .h1{font-size:24px;line-height:1.25;margin:6px 0 10px;letter-spacing:.5px;}
+    .sub{font-size:15px;color:var(--muted);line-height:1.85;margin:0 0 14px;}
+    .footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center;opacity:.92}
+
+    #home .h1{
+      position:relative;
+      padding-bottom:12px;
+      margin-bottom:12px;
+    }
+    #home .h1:after{
+      content:"";
+      position:absolute; left:0; bottom:0;
+      width:78%; height:2px; border-radius:999px;
+      background:linear-gradient(90deg, rgba(212,175,55,.15), rgba(212,175,55,.95), rgba(212,175,55,.10));
+    }
+
+    .btn{
+      appearance:none;border:0;cursor:pointer;
+      width:100%; padding:14px 14px;border-radius:14px;
+      background:linear-gradient(180deg,#C81E1E,#9F1414);
+      color:#FFF7EB;
+      font-size:16px; font-weight:800;
+      box-shadow:0 6px 14px rgba(185,28,28,.45);
+      position:relative;
+    }
+    .btn:before{
+      content:"";
+      position:absolute; inset:1px;
+      border-radius:13px;
+      border:1px solid rgba(212,175,55,.35);
+      pointer-events:none;
+    }
+    .btn:active{transform:scale(.985)}
+    .btn.secondary{
+      background:linear-gradient(180deg,#1F2937,#111827);
+      box-shadow:0 8px 18px rgba(0,0,0,.25);
+    }
+    .btn + .btn{margin-top:10px;}
+
+    .opt{
+      width:100%;
+      text-align:left;
+      padding:14px 14px;
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.35);
+      background:linear-gradient(180deg,#FFFDF7,#FFF4DF);
+      cursor:pointer;
+      transition:.12s transform, .12s border-color, .12s box-shadow;
+      color:var(--ink);
+      line-height:1.6;
+    }
+    .opt:hover{border-color:rgba(185,28,28,.45); box-shadow:0 10px 18px rgba(0,0,0,.08); transform:translateY(-1px);}
+    .opt:active{transform:translateY(0) scale(.99)}
+    .opt + .opt{margin-top:10px;}
+
+    .progress{
+      height:12px;
+      background:rgba(59,27,18,.12);
+      border-radius:999px;
+      overflow:hidden;
+      margin:12px 0 6px;
+      border:1px solid rgba(212,175,55,.25);
+    }
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#D4AF37,#C81E1E,#D4AF37);}
+
+    .titleRow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+    .kpi{font-size:12px;color:var(--muted);white-space:nowrap;margin-top:2px;}
+
+    .hint{
+      display:inline-block;
+      font-weight:900;
+      color:#5A2A16;
+      padding:8px 10px;
+      border-radius:12px;
+      background:linear-gradient(180deg, rgba(212,175,55,.14), rgba(212,175,55,.06));
+      border:1px solid rgba(212,175,55,.38);
+    }
+
+    .resultTag{
+      display:inline-block;margin-top:10px;font-size:12px;color:#3B1B12;
+      background:linear-gradient(180deg,#F6E7B6,#E7C66A);
+      border:1px solid rgba(212,175,55,.7);
+      padding:6px 10px;border-radius:999px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    .quote{
+      margin-top:12px;
+      padding:14px 14px;
+      border-radius:14px;
+      background:
+        linear-gradient(180deg, rgba(212,175,55,.18), rgba(212,175,55,.08)),
+        repeating-linear-gradient(90deg, rgba(59,27,18,.05) 0 8px, rgba(255,255,255,0) 8px 16px);
+      color:#4A2012;
+      font-size:14px;
+      line-height:1.75;
+      position:relative;
+      border:1px solid rgba(212,175,55,.55);
+      box-shadow:0 10px 24px rgba(0,0,0,.10) inset, 0 10px 20px rgba(0,0,0,.08);
+    }
+    .quote:before, .quote:after{
+      content:"";
+      position:absolute; top:10px; bottom:10px; width:6px;
+      background:linear-gradient(180deg, rgba(185,28,28,.55), rgba(185,28,28,.20));
+      border-radius:999px;
+      opacity:.85;
+    }
+    .quote:before{left:10px;}
+    .quote:after{right:10px;}
+
+    .hide{display:none}
+    #result-card{padding:18px}
+
+    .watermark{
+      margin-top:12px;display:flex;justify-content:space-between;align-items:center;
+      color:rgba(139,106,79,.95);font-size:12px;
+      padding-top:10px;
+      border-top:1px dashed rgba(212,175,55,.45);
+    }
+    .wm-brand{
+      font-weight:900;color:#5A2A16;
+      padding:4px 8px;border-radius:10px;
+      border:1px solid rgba(185,28,28,.35);
+      background:rgba(185,28,28,.06);
+    }
+
+    /* 维度池 */
+    .dimTitle{font-weight:900;color:#5A2A16;margin:8px 0 10px;}
+    .dimItem{margin:10px 0;}
+    .dimRow{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);}
+    .dimBar{
+      height:12px;border-radius:999px;overflow:hidden;
+      border:1px solid rgba(212,175,55,.35);
+      background:rgba(59,27,18,.10);
+      margin-top:6px;
+    }
+    .dimFill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#D4AF37,#C81E1E,#D4AF37);}
+    .dimTop .dimRow{color:#7A1A14;font-weight:900;}
+    .dimTop .dimBar{border-color:rgba(185,28,28,.35)}
+    .dimTop .dimFill{background:linear-gradient(90deg,#D4AF37,#E11D48,#D4AF37); box-shadow:0 0 0 2px rgba(212,175,55,.25) inset;}
+
+    /* 小红书模块（无二维码，纯直达） */
+    .xhsCard{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(212,175,55,.55);
+      background:
+        radial-gradient(closest-side at 20% 20%, rgba(212,175,55,.10), transparent 60%),
+        linear-gradient(180deg,#FFF9EF,#FFF1D8);
+      box-shadow:0 14px 28px rgba(0,0,0,.12);
+    }
+    .xhsHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+    .xhsTitle{font-weight:900; color:#7A1A14; letter-spacing:.4px;}
+    .xhsHint{
+      font-size:12px; color:rgba(139,106,79,.95);
+      background:linear-gradient(180deg, rgba(246,231,182,.45), rgba(231,198,106,.22));
+      border:1px solid rgba(212,175,55,.55);
+      padding:6px 10px; border-radius:999px;
+    }
+    .xhsMeta{min-width:0;}
+    .xhsName{font-weight:900; color:#5A2A16; margin-bottom:6px;}
+    .xhsDesc{font-size:13px; color:var(--muted); line-height:1.7; margin:0 0 10px;}
+    .xhsBtn{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%;
+      padding:12px 12px; border-radius:14px;
+      text-decoration:none;
+      color:#FFF7EB;
+      background:linear-gradient(180deg,#C81E1E,#9F1414);
+      border:1px solid rgba(212,175,55,.35);
+      box-shadow:0 10px 18px rgba(185,28,28,.30);
+      font-weight:900;
+    }
+    .xhsBtn:active{transform:scale(.985)}
+  
+    button.btn:disabled{filter:saturate(.7); box-shadow:none;}
+    </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- HOME -->
+    <section id="home" class="card">
+      <div class="topbar">
+        <div></div>
+        <div class="tiny">3分钟测完</div>
+      </div>
+
+      <div class="h1"><span style="color:#7A1A14;">不是每一场竞争都写在明面上</span></div>
+      <div class="sub" style="margin-top:-2px;margin-bottom:14px;">8 道题 · 识别你的「小人类型」与「维度池」</div>
+
+      <p class="sub">
+        有的人靠气势，有的人靠规则，有的人靠沉默。用 8 道题，测出你今年最容易遇到的职场小人类型。
+      </p>
+
+      <button class="btn" id="startBtn">开始测试</button>
+
+      <!-- 访问验证码 -->
+      <div id="captchaBox" style="margin-top:12px;">
+        <div class="sub" style="margin:0 0 8px;">请输入验证码后开始答题</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input id="captchaInput" type="text" inputmode="text" placeholder="验证码"
+                 style="flex:1;padding:12px 12px;border-radius:14px;border:1px solid rgba(212,175,55,.55);
+                        background:linear-gradient(180deg,#FFFDF7,#FFF4DF);color:var(--ink);outline:none;" />
+          <button class="btn" id="verifyBtn" style="width:auto;white-space:nowrap;padding:12px 14px;">验证</button>
+        </div>
+        <div id="captchaMsg" class="footer" style="margin-top:8px;text-align:left;"></div>
+      </div>
+
+
+      <!-- 小红书（首页：直达链接） -->
+      <div class="xhsCard">
+        <div class="xhsHead">
+          <div class="xhsTitle">关注我 · 小红书</div>
+          <div class="xhsHint">直达链接</div>
+        </div>
+        <div class="xhsMeta">
+          <div class="xhsName">林间心灵小铺🍀</div>
+          <p class="xhsDesc">小红书号：26431053876｜更多职场关系测试与低内耗成长。</p>
+          <a class="xhsBtn" href="https://xhslink.com/m/4CIrTGgWEkg" target="_blank" rel="noopener">去小红书看看</a>
+        </div>
+      </div>
+
+      <div class="footer">测完可截图结果给朋友一起对比</div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz" class="card hide">
+      <div class="titleRow">
+        <div>
+          <div class="badge" id="quizBadge">正在作答</div>
+          <div class="h1" id="qTitle">题目标题</div>
+        </div>
+        <div class="kpi" id="qIndex">1/8</div>
+      </div>
+
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="hint" id="qHint">请选择最像你遇到的那种人</div>
+
+      <div id="options" style="margin-top:12px;"></div>
+      <div class="footer">点击选项自动进入下一题</div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="result" class="card hide">
+      <div id="result-card">
+        <div class="badge" id="rSubtitle">结果标签</div>
+        <div class="h1" id="rTitle">你的结果：__型</div>
+
+        <div class="resultTag" id="rDimTop">TOP维度：__</div>
+        <div class="sub" id="rDimExplain" style="margin-top:10px;"></div>
+
+        <div id="dimPool" style="margin-top:12px;"></div>
+
+        <p class="sub" id="rPara" style="margin-top:12px;"></p>
+        <div class="quote" id="rQuote">“金句”</div>
+
+        <div class="watermark">
+          <div class="wm-brand">马年职场小人测试</div>
+          <div id="rStamp">H5</div>
+        </div>
+      </div>
+
+      <button class="btn secondary" id="retryBtn" style="margin-top:12px;">再测一次</button>
+
+      <!-- 小红书（结果页：放在“再测一次”后面） -->
+      <div class="xhsCard">
+        <div class="xhsHead">
+          <div class="xhsTitle">林间心灵小铺🍀</div>
+          <div class="xhsHint">关注直达</div>
+        </div>
+        <div class="xhsMeta">
+          <p class="xhsDesc">想看更多“职场关系结构”测评与解读，点击直达小红书主页。</p>
+          <a class="xhsBtn" href="https://xhslink.com/m/4CIrTGgWEkg" target="_blank" rel="noopener">去小红书看看</a>
+        </div>
+      </div>
+
+      <div class="footer">展示：小人类型 + 维度池（机制B）</div>
+    </section>
+  </div>
+
+  <script>
+    const DIM_NAME = { R:'规则操控', Y:'情绪压迫', B:'背刺竞争', L:'舆论传播', X:'信息挑拨', M:'莽撞误伤' };
+    const DIM_EXPLAIN = {
+      R:'你更容易遇到“改规则、挪资源、模糊责任”的打法。',
+      Y:'你更容易遇到“当众压制、制造紧迫感、情绪控场”的打法。',
+      B:'你更容易遇到“表面同盟、关键沉默、暗中比较”的打法。',
+      L:'你更容易遇到“群里带节奏、转述评价、逼人站队”的打法。',
+      X:'你更容易遇到“投喂风声、挑拨关系、制造误会”的打法。',
+      M:'你更容易遇到“冲动惹事、误伤连累、让人善后”的打法。',
+    };
+
+    const RESULTS = {
+      QH: { title:'皇后型小人', subtitle:'温柔操盘 · 规则重塑者',
+        paragraph:'你遇到的这类人说话体面、从不翻脸，却擅长在你不知情时微调规则、挪动资源，让别人替TA冲锋，自己只做最后确认。你常有一种“哪里不对但说不清”的感觉。应对的关键不是对抗，而是控变量：把口头认可变成书面确认，把暗改拉回明面，在流程语言里稳住位置，让自己变得不可轻易替代。',
+        quote:'“这后宫里，最要紧的，是懂规矩。”' },
+      HF: { title:'华妃型小人', subtitle:'高压强控 · 情绪攻击者',
+        paragraph:'这种人习惯用语气和场面压你，爱当众点名、制造紧急感，让你反复自我怀疑。你不是玻璃心，是被放在高压环境里。对策是只接事实不接情绪：当场回应节点与结果，提前同步关键进度，把公开冲突转为私下沟通，不在对方的情绪场里证明自己。',
+        quote:'“有些气势，不过是虚张声势。”' },
+      ALR:{ title:'安陵容型小人', subtitle:'关系伪装 · 背刺竞争',
+        paragraph:'表面同盟、关键时刻沉默，机会一来却比谁都快，让你总怀疑是不是自己想多了。你重情更容易投入，于是更容易被“旧情分”拖慢判断。应对是合作留边界：重要信息分层共享，观察关键时刻的选择而非日常态度，允许关系阶段性结束，先看行为再谈感情。',
+        quote:'“原来这情分，也会变。”' },
+      QGR:{ title:'祺贵人型小人', subtitle:'舆论冲锋 · 被利用者',
+        paragraph:'TA热衷传播消息、情绪上头就发言，常把你卷进你并不想参与的局面。最有效的是降噪：群里少表态、关键沟通走私聊，不转述不附和，对模糊消息保持冷处理，并和真正有决策权的人建立单线联系，远离扩音器、保住清晰度。',
+        quote:'“有些人，不过是棋子。”' },
+      CG: { title:'曹贵人型小人', subtitle:'信息投喂 · 挑拨离间',
+        paragraph:'TA以“为你好”为名投喂风声，把别人的评价塞进你耳朵里，让你陷入猜测循环。应对是切断污染源：只接受当事人直接反馈，不二次传播，把判断建立在事实与证据上，主动减少信息交集，重要的事不靠传话完成。',
+        quote:'“这风，是有人吹的。”' },
+      XDQ:{ title:'夏冬春型小人', subtitle:'莽撞误伤 · 无脑惹事',
+        paragraph:'冲动发言、不顾后果，常把你一起拖下水。你总在善后补锅，久了会把兜底当义务。应对是尽早划清边界：不替别人买单，出事先澄清自己的部分，减少深度绑定，让责任回到该负责的人身上。',
+        quote:'“这局，不是我设的。”' }
+    };
+
+    const QUESTIONS = [
+      { id:1, title:'开工第一周，你的项目突然被“重新分工”', weight:1,
+        options:[
+          {text:'某位领导笑着说“为你好”，转头把你的成果拆出去。', type:'QH', dim:'R'},
+          {text:'有人当众说你效率低，逼你马上交付。', type:'HF', dim:'Y'},
+          {text:'跟你关系不错的人私下安慰你，会议上却一句话不说。', type:'ALR', dim:'B'},
+          {text:'有同事开始到处说“听说你要背锅”。', type:'CG', dim:'X'}
+        ]},
+      { id:2, title:'会议现场，你的方案被否定', weight:1,
+        options:[
+          {text:'上级温和总结“再优化方向”，结果方向完全变了。', type:'QH', dim:'R'},
+          {text:'某人直接否定“你这方案根本不行”。', type:'HF', dim:'Y'},
+          {text:'同期同事散会后拿你的思路去汇报。', type:'ALR', dim:'B'},
+          {text:'会后有人在群里转述“领导对你挺失望”。', type:'QGR', dim:'L'}
+        ]},
+      { id:3, title:'你明显感觉气氛变了', weight:1,
+        options:[
+          {text:'表面正常，但资源慢慢从你这边移走。', type:'QH', dim:'R'},
+          {text:'有人开始频繁点你的小错误。', type:'HF', dim:'Y'},
+          {text:'曾经亲近的人突然疏远你。', type:'ALR', dim:'B'},
+          {text:'有人“好心提醒”你很多负面消息。', type:'CG', dim:'X'}
+        ]},
+      { id:4, title:'群里出现关于你的风声', weight:1,
+        options:[
+          {text:'来源模糊，但总能精准影响领导判断。', type:'QH', dim:'R'},
+          {text:'有人直接在群里阴阳你。', type:'HF', dim:'Y'},
+          {text:'你发现消息从熟人圈传出来的。', type:'ALR', dim:'B'},
+          {text:'某个同事热衷转发“内部消息”。', type:'QGR', dim:'L'}
+        ]},
+      { id:5, title:'你辛苦做的方案被“拿去参考”', weight:1,
+        options:[
+          {text:'上级说是团队成果，却只提别人名字。', type:'QH', dim:'R'},
+          {text:'有人拿走还说“你这不成熟”。', type:'HF', dim:'Y'},
+          {text:'原本一起做的人单独提交了完整版。', type:'ALR', dim:'B'},
+          {text:'有人开始向所有人复述你的内容。', type:'CG', dim:'X'}
+        ]},
+      { id:6, title:'部门开始隐约站队', weight:1,
+        options:[
+          {text:'有人暗示你“先看看领导风向”。', type:'QH', dim:'R'},
+          {text:'有人逼你公开表态。', type:'HF', dim:'Y'},
+          {text:'同期同事明显向另一边靠拢。', type:'ALR', dim:'B'},
+          {text:'有人在各群里输出立场。', type:'QGR', dim:'L'}
+        ]},
+      { id:7, title:'项目出问题了', weight:1,
+        options:[
+          {text:'规则突然改变，你成了“不合流程”的那个。', type:'QH', dim:'R'},
+          {text:'有人直接把锅甩你脸上。', type:'HF', dim:'Y'},
+          {text:'关键信息被“忘了告诉你”。', type:'CG', dim:'X'},
+          {text:'有人冲动发言，把你一起拖下水。', type:'XDQ', dim:'M'}
+        ]},
+      { id:8, title:'终极题｜你最怕哪一种职场阴招？', weight:2,
+        options:[
+          {text:'笑着对你好，却默默改掉所有对你有利的规则。', type:'QH', dim:'R'},
+          {text:'当众压你，让你长期处在自我怀疑里。', type:'HF', dim:'Y'},
+          {text:'表面是朋友，关键时刻转身。', type:'ALR', dim:'B'},
+          {text:'到处传话、制造误会、拉你进混乱局面。', type:'CG', dim:'X'}
+        ]}
+    ];
+
+    const state = { i: 0, picks: [] };
+
+    const elHome = document.getElementById('home');
+    const elQuiz = document.getElementById('quiz');
+    const elResult = document.getElementById('result');
+
+    const startBtn = document.getElementById('startBtn');
+    const optionsEl = document.getElementById('options');
+    const qTitleEl = document.getElementById('qTitle');
+    const qIndexEl = document.getElementById('qIndex');
+    const barEl = document.getElementById('bar');
+
+    const rTitleEl = document.getElementById('rTitle');
+    const rSubtitleEl = document.getElementById('rSubtitle');
+    const rDimTopEl = document.getElementById('rDimTop');
+    const rDimExplainEl = document.getElementById('rDimExplain');
+    const rParaEl = document.getElementById('rPara');
+    const rQuoteEl = document.getElementById('rQuote');
+
+    document.getElementById('retryBtn').onclick = () => resetAll();
+
+    
+    const CAPTCHA_CODE = '1001';
+    let captchaVerified = false;
+
+    // 默认禁用开始按钮，需先验证
+    startBtn.disabled = true;
+    startBtn.style.opacity = '0.6';
+    startBtn.style.cursor = 'not-allowed';
+
+    const verifyBtn = document.getElementById('verifyBtn');
+    const captchaInput = document.getElementById('captchaInput');
+    const captchaMsg = document.getElementById('captchaMsg');
+
+    function setStartEnabled(enabled){
+      startBtn.disabled = !enabled;
+      startBtn.style.opacity = enabled ? '1' : '0.6';
+      startBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+    }
+
+    verifyBtn.onclick = () => {
+      const v = (captchaInput.value || '').trim();
+      if (!v){
+        captchaMsg.textContent = '请输入验证码。';
+        captchaMsg.style.color = '#7A1A14';
+        return;
+      }
+      if (v === CAPTCHA_CODE){
+        captchaVerified = true;
+        captchaMsg.textContent = '验证通过，点击「开始测试」进入答题。';
+        captchaMsg.style.color = '#14532D';
+        setStartEnabled(true);
+      }else{
+        captchaVerified = false;
+        captchaMsg.textContent = '验证码错误，请重试。';
+        captchaMsg.style.color = '#7A1A14';
+        setStartEnabled(false);
+      }
+    };
+
+    // 回车直接验证
+    captchaInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifyBtn.click();
+    });
+
+    startBtn.onclick = () => {
+      if (!captchaVerified){
+        alert('请先输入正确的验证码再开始答题。');
+        return;
+      }
+      elHome.classList.add('hide');
+      elQuiz.classList.remove('hide');
+      renderQuestion();
+    };
+
+
+    function renderQuestion(){
+      const q = QUESTIONS[state.i];
+      qTitleEl.textContent = q.title + '，最有可能发生……';
+      qIndexEl.textContent = `${state.i+1}/${QUESTIONS.length}`;
+      barEl.style.width = `${(state.i)/QUESTIONS.length*100}%`;
+
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt) => {
+        const b = document.createElement('button');
+        b.className = 'opt';
+        b.textContent = opt.text;
+        b.onclick = () => {
+          const w = q.weight || 1;
+          state.picks.push({ type: opt.type, dim: opt.dim, w });
+          state.i++;
+          if (state.i >= QUESTIONS.length) finish();
+          else renderQuestion();
+        };
+        optionsEl.appendChild(b);
+      });
+    }
+
+    function finish(){
+      barEl.style.width = '100%';
+      const { finalType, finalDim, dimScore } = calcResult(state.picks);
+      const r = RESULTS[finalType];
+
+      rSubtitleEl.textContent = r.subtitle;
+      rTitleEl.textContent = `你的结果：${r.title}`;
+
+      rDimTopEl.textContent = `TOP维度：${finalDim}｜${DIM_NAME[finalDim]}`;
+      rDimExplainEl.textContent = DIM_EXPLAIN[finalDim];
+
+      renderDimPool(dimScore, finalDim);
+
+      rParaEl.textContent = r.paragraph;
+      rQuoteEl.textContent = r.quote;
+
+      elQuiz.classList.add('hide');
+      elResult.classList.remove('hide');
+    }
+
+    function calcResult(picks){
+      const typeScore = { QH:0, HF:0, ALR:0, QGR:0, CG:0, XDQ:0 };
+      const dimScore  = { R:0, Y:0, B:0, L:0, X:0, M:0 };
+      picks.forEach(p => { typeScore[p.type]+=p.w; dimScore[p.dim]+=p.w; });
+
+      const finalType = Object.keys(typeScore).sort((a,b)=>typeScore[b]-typeScore[a])[0];
+      const finalDim  = Object.keys(dimScore).sort((a,b)=>dimScore[b]-dimScore[a])[0];
+      return { finalType, finalDim, typeScore, dimScore };
+    }
+
+    function renderDimPool(dimScore, finalDim){
+      const order = ['R','Y','B','L','X','M'];
+      const max = Math.max(...order.map(k => dimScore[k] || 0), 1);
+      const el = document.getElementById('dimPool');
+
+      el.innerHTML = `
+        <div class="dimTitle">你的维度池（机制B）</div>
+        ${order.map(k=>{
+          const v = dimScore[k] || 0;
+          const pct = Math.round(v / max * 100);
+          const topCls = (k === finalDim) ? 'dimItem dimTop' : 'dimItem';
+          return `
+            <div class="${topCls}">
+              <div class="dimRow">
+                <span>${k}｜${DIM_NAME[k]}</span>
+                <span>${v} 分</span>
+              </div>
+              <div class="dimBar"><div class="dimFill" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function resetAll(){
+      state.i = 0; state.picks = [];
+      elResult.classList.add('hide');
+      elQuiz.classList.add('hide');
+      elHome.classList.remove('hide');
+      barEl.style.width = '0%';
+    }
+  </script>
+</body>
+</html>
